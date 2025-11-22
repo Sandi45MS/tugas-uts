@@ -1,0 +1,112 @@
+import streamlit as st
+import pandas as pd
+
+st.set_page_config(page_title="Aplikasi Akuntansi", page_icon="💰")
+
+st.title("💼 Aplikasi Akuntansi Sederhana")
+
+menu = st.sidebar.selectbox(
+    "Pilih Menu",
+    ["Beranda", "Debit & Kredit", "Laba Rugi", "Neraca", "Jurnal Umum"]
+)
+
+# --------------------------------------------
+# 1. BERANDA
+# --------------------------------------------
+if menu == "Beranda":
+    st.subheader("Selamat datang di Aplikasi Akuntansi")
+    st.write("""
+    Gunakan menu di sebelah kiri untuk:
+    - Menghitung Debit & Kredit
+    - Menghitung Laba Rugi
+    - Membuat Neraca Sederhana
+    - Mengisi Jurnal Umum  
+    Data langsung diproses *live* melalui web.
+    """)
+
+# --------------------------------------------
+# 2. DEBIT & KREDIT
+# --------------------------------------------
+elif menu == "Debit & Kredit":
+    st.subheader("📊 Perhitungan Debit & Kredit")
+
+    nama = st.text_input("Nama Transaksi")
+    debit = st.number_input("Debit", min_value=0.0, format="%.2f")
+    kredit = st.number_input("Kredit", min_value=0.0, format="%.2f")
+
+    if st.button("Hitung"):
+        saldo = debit - kredit
+        
+        st.write("### Hasil:")
+        st.write(f"Nama Transaksi: **{nama}**")
+        st.write(f"Total Debit: **{debit}**")
+        st.write(f"Total Kredit: **{kredit}**")
+
+        if saldo > 0:
+            st.success(f"Saldo: {saldo:.2f} (Debit Lebih Besar)")
+        elif saldo < 0:
+            st.warning(f"Saldo: {-saldo:.2f} (Kredit Lebih Besar)")
+        else:
+            st.info("Seimbang (0)")
+
+# --------------------------------------------
+# 3. LABA RUGI
+# --------------------------------------------
+elif menu == "Laba Rugi":
+    st.subheader("💹 Perhitungan Laba Rugi")
+
+    pendapatan = st.number_input("Pendapatan", min_value=0.0)
+    biaya = st.number_input("Biaya", min_value=0.0)
+
+    if st.button("Hitung Laba Rugi"):
+        laba = pendapatan - biaya
+
+        st.write("### Hasil:")
+        st.write(f"Pendapatan: **{pendapatan}**")
+        st.write(f"Biaya: **{biaya}**")
+
+        if laba > 0:
+            st.success(f"Laba: {laba}")
+        elif laba < 0:
+            st.error(f"Rugi: {-laba}")
+        else:
+            st.info("Tidak Laba, Tidak Rugi")
+
+# --------------------------------------------
+# 4. NERACA
+# --------------------------------------------
+elif menu == "Neraca":
+    st.subheader("📘 Neraca Sederhana")
+
+    aktiva = st.number_input("Total Aktiva", min_value=0.0)
+    kewajiban = st.number_input("Total Kewajiban", min_value=0.0)
+    ekuitas = st.number_input("Total Ekuitas", min_value=0.0)
+
+    if st.button("Cek Keseimbangan"):
+        if aktiva == kewajiban + ekuitas:
+            st.success("Neraca Seimbang ✔")
+        else:
+            st.error(f"Neraca Tidak Seimbang ❌  
+                      Selisih: {aktiva - (kewajiban + ekuitas):.2f}")
+
+# --------------------------------------------
+# 5. JURNAL UMUM
+# --------------------------------------------
+elif menu == "Jurnal Umum":
+    st.subheader("📒 Jurnal Umum")
+
+    if "jurnal" not in st.session_state:
+        st.session_state.jurnal = []
+
+    akun = st.text_input("Nama Akun")
+    debit = st.number_input("Debit", min_value=0.0)
+    kredit = st.number_input("Kredit", min_value=0.0)
+
+    if st.button("Tambah Jurnal"):
+        st.session_state.jurnal.append({"Akun": akun, "Debit": debit, "Kredit": kredit})
+        st.success("Data ditambahkan!")
+
+    if st.session_state.jurnal:
+        st.write("### Data Jurnal Umum")
+        df = pd.DataFrame(st.session_state.jurnal)
+        st.dataframe(df)
